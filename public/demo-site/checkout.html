@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lumora — Checkout</title>
+<link rel="stylesheet" href="/demo-site/style.css" />
+</head>
+<body>
+<header class="topbar">
+  <a href="/demo-site/index.html" class="brand">LUMORA</a>
+  <nav class="iconnav">
+    <button class="icobtn">◇</button>
+    <button class="icobtn">◯</button>
+    <button class="icobtn">△</button>
+    <button class="icobtn">▽</button>
+  </nav>
+</header>
+
+<main class="checkout">
+  <h1>Finalize your bundle.</h1>
+  <p class="lede small">1 × Lumora Daily — Founders Edition · <strong>$249.00</strong></p>
+
+  <form class="cform" onsubmit="return false;">
+    <!-- Deliberately bad: inputs without labels, low contrast placeholders -->
+    <div class="row">
+      <input type="email" placeholder="email" />
+    </div>
+    <div class="row">
+      <input type="text" placeholder="full name" />
+    </div>
+    <div class="row">
+      <input type="text" placeholder="address" />
+    </div>
+    <div class="row two">
+      <input type="text" placeholder="city" />
+      <input type="text" placeholder="zip" />
+    </div>
+    <div class="row">
+      <input type="text" placeholder="card #" inputmode="numeric" />
+    </div>
+    <div class="row two">
+      <input type="text" placeholder="exp" />
+      <input type="text" placeholder="cvc" />
+    </div>
+
+    <p class="fine">No trust signals. No SSL badge. No return policy. No support contact.</p>
+
+    <!-- DELIBERATELY BROKEN: the "Complete Purchase" button does nothing.
+         No onclick handler, no form submission, no link. Silent failure. -->
+    <button type="button" class="btn btn-primary big" id="completeBtn">Complete Purchase</button>
+  </form>
+</main>
+
+<footer class="foot">
+  <p>© Lumora — disrupting wakefulness since 2026</p>
+</footer>
+
+<script>
+  // Intentionally NOT wiring up the complete button.
+  // It looks clickable but does absolutely nothing.
+  // This is the "guaranteed bug" moment for the Cohort demo.
+</script>
+</body>
+</html>

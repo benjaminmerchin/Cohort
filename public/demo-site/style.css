@@ -1,0 +1,80 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f7f5f2;
+  --fg: #111;
+  --muted: #6b6b6b;
+  --accent: #111;
+  --line: #e5e2dc;
+}
+html, body { background: var(--bg); color: var(--fg); font: 15px/1.5 -apple-system, system-ui, sans-serif; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 32px; border-bottom: 1px solid var(--line);
+  background: #fff;
+}
+.brand { font-weight: 800; letter-spacing: 0.18em; text-decoration: none; color: var(--fg); }
+.iconnav { display: flex; gap: 8px; }
+/* Deliberately bad: icon buttons with no aria-label, no text, no title */
+.icobtn {
+  width: 36px; height: 36px; border: 1px solid var(--line);
+  background: #fff; border-radius: 6px; cursor: pointer; font-size: 14px;
+}
+.icobtn:hover { background: #f0eee9; }
+.badge { font-size: 11px; color: var(--muted); border: 1px solid var(--line); padding: 4px 8px; border-radius: 999px; }
+.cart { color: var(--fg); text-decoration: none; font-size: 13px; border: 1px solid var(--line); padding: 8px 12px; border-radius: 6px; background: #fff; }
+
+main { max-width: 960px; margin: 0 auto; padding: 80px 32px; }
+
+.hero { text-align: center; }
+.kicker { font-size: 11px; letter-spacing: 0.22em; color: var(--muted); margin-bottom: 18px; }
+h1 { font-size: 56px; line-height: 1.05; letter-spacing: -0.02em; font-weight: 600; }
+h1 em { font-style: italic; font-weight: 400; }
+.lede { margin: 24px auto 0; max-width: 560px; color: var(--muted); font-size: 17px; }
+.lede.small { font-size: 14px; }
+
+.cta-row { margin-top: 36px; display: flex; gap: 10px; justify-content: center; }
+.btn {
+  display: inline-block; padding: 12px 22px; border-radius: 999px;
+  font-size: 14px; font-weight: 500; text-decoration: none; cursor: pointer;
+  border: 1px solid var(--line); background: #fff; color: var(--fg);
+}
+.btn-primary { background: #111; color: #fff; border-color: #111; }
+.btn-primary:hover { background: #000; }
+.btn-ghost { background: transparent; }
+.btn.big { padding: 16px 28px; font-size: 15px; width: 100%; }
+
+.grid3 {
+  max-width: 960px; margin: 0 auto 80px; padding: 0 32px;
+  display: grid; gap: 16px; grid-template-columns: repeat(3, 1fr);
+}
+.card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 24px; }
+.card .ico { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; margin-bottom: 14px; }
+.card h3 { font-size: 18px; margin-bottom: 6px; }
+.card p { color: var(--muted); font-size: 14px; }
+
+/* Shop */
+.shop { padding-top: 60px; }
+.shop h1 { font-size: 40px; margin-bottom: 10px; }
+.product { margin-top: 40px; display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: start; }
+.pphoto { width: 220px; height: 260px; background: #fff; border: 1px solid var(--line); border-radius: 14px; display: grid; place-items: center; font-size: 56px; color: #ccc; }
+.pinfo h2 { font-size: 24px; margin-bottom: 8px; }
+.pinfo .price { font-size: 18px; margin-bottom: 16px; }
+.pinfo .pdesc { color: var(--muted); margin-bottom: 22px; }
+
+/* Checkout */
+.checkout { padding-top: 60px; max-width: 480px; }
+.checkout h1 { font-size: 32px; margin-bottom: 8px; }
+.cform { margin-top: 28px; display: grid; gap: 12px; }
+.row { display: grid; }
+.row.two { grid-template-columns: 1fr 1fr; gap: 12px; }
+/* Deliberately bad: low-contrast placeholder, no labels */
+.cform input {
+  width: 100%; padding: 14px; border: 1px solid var(--line);
+  border-radius: 8px; background: #fff; font-size: 15px;
+  color: #111;
+}
+.cform input::placeholder { color: #c8c4bd; }
+.fine { font-size: 12px; color: var(--muted); margin: 10px 0 4px; }
+
+.foot { padding: 30px 32px; text-align: center; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); margin-top: 60px; background: #fff; }
