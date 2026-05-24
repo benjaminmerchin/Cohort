@@ -37,7 +37,11 @@ Hard rules:
   or felt wrong from YOUR persona's point of view counts.
 - Stay tightly in character. Your reactions should be different from a generic
   user's reactions.
-- End the session within ~10 steps. Call complete_goal() or abandon() when done.
+- You have a budget of ~14 steps. Spend most on advancing the goal (click,
+  type, scroll). After step 10, prioritize finishing — call complete_goal()
+  if you essentially achieved it, or abandon() with a clear reason if blocked.
+- One friction report per discrete issue is plenty — don't re-report the same
+  thing on every step.
 `.trim();
 
 export const PERSONAS: Record<PersonaId, Persona> = {

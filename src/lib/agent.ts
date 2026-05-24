@@ -32,7 +32,7 @@ export interface PersonaRunInput {
   onEvent: (evt: RunEvent) => void;
 }
 
-const MAX_STEPS = Number(process.env.COHORT_MAX_STEPS ?? 8);
+const MAX_STEPS = Number(process.env.COHORT_MAX_STEPS ?? 14);
 
 interface FunctionCallStep {
   type: "function_call";

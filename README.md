@@ -68,7 +68,7 @@ GEMINI_MODEL=gemini-3.5-flash    # falls back through 3.5/3/2.5 variants
 | Var                          | Default | What it does                                  |
 | ---------------------------- | ------- | --------------------------------------------- |
 | `COHORT_MAX_RUNS`            | `1`     | Concurrent cohort runs per process            |
-| `COHORT_MAX_STEPS`           | `8`     | Hard cap on steps per persona                 |
+| `COHORT_MAX_STEPS`           | `14`    | Hard cap on steps per persona                 |
 | `COHORT_VIEWPORT_W`          | `1024`  | Playwright viewport width                     |
 | `COHORT_VIEWPORT_H`          | `640`   | Playwright viewport height                    |
 | `COHORT_SCREENSHOT_QUALITY`  | `55`    | JPEG quality for streamed screenshots (1-100) |
