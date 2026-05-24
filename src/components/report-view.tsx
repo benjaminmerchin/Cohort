@@ -4,8 +4,18 @@ import { ChevronRight, Flame, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { PERSONAS } from "@/lib/personas";
 import type { ReconciliationReport } from "@/lib/events";
+import { cn } from "@/lib/utils";
 
-export function ReportView({ report }: { report: ReconciliationReport }) {
+interface ReportViewProps {
+  report: ReconciliationReport;
+  /** Selected fix ranks. If undefined, checkboxes are hidden. */
+  selectedRanks?: Set<number>;
+  onToggleRank?: (rank: number) => void;
+}
+
+export function ReportView({ report, selectedRanks, onToggleRank }: ReportViewProps) {
+  const selectMode = !!selectedRanks && !!onToggleRank;
+
   return (
     <div className="mx-auto w-full max-w-5xl space-y-6 px-6 pb-24 pt-2">
       {/* Headline */}
@@ -26,45 +36,68 @@ export function ReportView({ report }: { report: ReconciliationReport }) {
             Prioritized fixes
           </h3>
           <span className="text-xs text-white/40">
-            ranked by # personas hurt × severity
+            {selectMode
+              ? "select what you want Claude Code to fix"
+              : "ranked by # personas hurt × severity"}
           </span>
         </div>
         <div className="space-y-3">
-          {report.prioritizedFixes.map((fix) => (
-            <div
-              key={fix.rank}
-              className="rounded-2xl border border-white/10 bg-white/[0.02] p-5 transition hover:border-white/20 hover:bg-white/[0.04]"
-            >
-              <div className="flex items-start gap-4">
-                <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/[0.04] font-mono text-sm font-semibold text-white">
-                  {fix.rank}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="mb-2 flex flex-wrap items-center gap-2">
-                    <h4 className="text-base font-semibold tracking-tight text-white">
-                      {fix.title}
-                    </h4>
-                    <Badge variant={fix.severity}>{fix.severity}</Badge>
-                    {fix.affectedPersonas.map((pid) => (
-                      <Badge key={pid} variant="outline" className="lowercase">
-                        {PERSONAS[pid]?.emoji ?? "·"} {PERSONAS[pid]?.name ?? pid}
-                      </Badge>
-                    ))}
+          {report.prioritizedFixes.map((fix) => {
+            const selected = selectMode && selectedRanks!.has(fix.rank);
+            const clickable = selectMode;
+            return (
+              <div
+                key={fix.rank}
+                onClick={clickable ? () => onToggleRank!(fix.rank) : undefined}
+                className={cn(
+                  "rounded-2xl border p-5 transition",
+                  selected
+                    ? "border-white/40 bg-white/[0.06]"
+                    : "border-white/10 bg-white/[0.02] hover:border-white/20 hover:bg-white/[0.04]",
+                  clickable && "cursor-pointer",
+                )}
+              >
+                <div className="flex items-start gap-4">
+                  {selectMode && (
+                    <input
+                      type="checkbox"
+                      checked={selected}
+                      onChange={() => onToggleRank!(fix.rank)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="mt-2 size-4 shrink-0 cursor-pointer accent-white"
+                      aria-label={`Select fix ${fix.rank}`}
+                    />
+                  )}
+                  <div className="grid size-9 shrink-0 place-items-center rounded-xl border border-white/15 bg-white/[0.04] font-mono text-sm font-semibold text-white">
+                    {fix.rank}
                   </div>
-                  <p className="text-sm leading-relaxed text-white/70">{fix.description}</p>
-                  <p className="mt-3 flex items-start gap-2 text-xs text-white/50">
-                    <ChevronRight className="mt-0.5 size-3 shrink-0" />
-                    <span>
-                      <span className="font-mono uppercase tracking-[0.14em] text-white/40">
-                        losing:
-                      </span>{" "}
-                      {fix.losing}
-                    </span>
-                  </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                      <h4 className="text-base font-semibold tracking-tight text-white">
+                        {fix.title}
+                      </h4>
+                      <Badge variant={fix.severity}>{fix.severity}</Badge>
+                      {fix.affectedPersonas.map((pid) => (
+                        <Badge key={pid} variant="outline" className="lowercase">
+                          {PERSONAS[pid]?.emoji ?? "·"} {PERSONAS[pid]?.name ?? pid}
+                        </Badge>
+                      ))}
+                    </div>
+                    <p className="text-sm leading-relaxed text-white/70">{fix.description}</p>
+                    <p className="mt-3 flex items-start gap-2 text-xs text-white/50">
+                      <ChevronRight className="mt-0.5 size-3 shrink-0" />
+                      <span>
+                        <span className="font-mono uppercase tracking-[0.14em] text-white/40">
+                          losing:
+                        </span>{" "}
+                        {fix.losing}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

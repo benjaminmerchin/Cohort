@@ -1,14 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowRight, Bot, GitBranch, Globe, Play, Sparkles, Square } from "lucide-react";
+import { ArrowRight, Bot, FolderCode, GitBranch, Globe, LogOut, Play, Sparkles, Square, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { PersonaCam, type PersonaState } from "@/components/persona-cam";
 import { ReportView } from "@/components/report-view";
+import { ApplyModal } from "@/components/apply-modal";
+import { SignIn } from "@/components/sign-in";
 import { PERSONA_ORDER, PERSONAS, type PersonaId } from "@/lib/personas";
-import type { FrictionLog, ReconciliationReport, RunEvent } from "@/lib/events";
+import { useAuth } from "@/lib/auth";
+import type { FrictionLog, PrioritizedFix, ReconciliationReport, RunEvent } from "@/lib/events";
 
 function initialState(persona: PersonaId): PersonaState {
   return {
@@ -32,8 +35,24 @@ function trim<T>(arr: T[], max: number): T[] {
 }
 
 export default function Home() {
+  const { user, ready, signOut } = useAuth();
+  // Show a tiny placeholder while we read localStorage so we don't flash
+  // the wrong screen on first paint.
+  if (!ready) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black text-white/40 font-mono text-xs uppercase tracking-[0.18em]">
+        loading…
+      </div>
+    );
+  }
+  if (!user) return <SignIn />;
+  return <App user={user} signOut={signOut} />;
+}
+
+function App({ user, signOut }: { user: { email: string; name: string }; signOut: () => void }) {
   const [url, setUrl] = useState("");
   const [goal, setGoal] = useState(DEMO_GOAL);
+  const [repoPath, setRepoPath] = useState("");
   const [phase, setPhase] = useState<"idle" | "running" | "reconciling" | "done">("idle");
   const [reconciling, setReconciling] = useState(false);
   const [report, setReport] = useState<ReconciliationReport | null>(null);
@@ -41,7 +60,22 @@ export default function Home() {
   const [states, setStates] = useState<Record<PersonaId, PersonaState>>(() =>
     Object.fromEntries(PERSONA_ORDER.map((p) => [p, initialState(p)])) as Record<PersonaId, PersonaState>,
   );
+  const [selectedRanks, setSelectedRanks] = useState<Set<number>>(new Set());
+  const [applyOpen, setApplyOpen] = useState(false);
   const sourceRef = useRef<EventSource | null>(null);
+
+  const toggleRank = useCallback((rank: number) => {
+    setSelectedRanks((prev) => {
+      const next = new Set(prev);
+      if (next.has(rank)) next.delete(rank);
+      else next.add(rank);
+      return next;
+    });
+  }, []);
+
+  const selectedFixes: PrioritizedFix[] = report
+    ? report.prioritizedFixes.filter((f) => selectedRanks.has(f.rank))
+    : [];
 
   const updatePersona = useCallback((persona: PersonaId, patch: (s: PersonaState) => PersonaState) => {
     setStates((prev) => ({ ...prev, [persona]: patch(prev[persona]) }));
@@ -58,6 +92,7 @@ export default function Home() {
       setError(null);
       setReport(null);
       setReconciling(false);
+      setSelectedRanks(new Set());
       setStates(
         Object.fromEntries(
           PERSONA_ORDER.map((p) => [p, { ...initialState(p), status: "running" as const }]),
@@ -224,7 +259,7 @@ export default function Home() {
             </Badge>
           </div>
           <div className="flex items-center gap-2">
-            {isRunning ? (
+            {isRunning && (
               <Button
                 variant="outline"
                 size="sm"
@@ -236,15 +271,26 @@ export default function Home() {
                 <Square className="size-3.5" />
                 Stop run
               </Button>
-            ) : (
+            )}
+            {!isRunning && (
               <a
                 href="https://github.com/benjaminmerchin/Cohort"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 hover:bg-white/[0.08] hover:text-white"
+                className="hidden items-center gap-1.5 rounded-full border border-white/15 bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 hover:bg-white/[0.08] hover:text-white sm:inline-flex"
               >
                 <GitBranch className="size-3.5" />
                 github
               </a>
             )}
+            <span className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-white/70 sm:inline-flex">
+              <span className="grid size-5 place-items-center rounded-full bg-white/15 text-[10px] font-semibold uppercase text-white">
+                {user.name.slice(0, 1)}
+              </span>
+              <span>{user.name}</span>
+            </span>
+            <Button variant="ghost" size="sm" onClick={signOut} aria-label="Sign out">
+              <LogOut className="size-3.5" />
+              <span className="hidden sm:inline">Sign out</span>
+            </Button>
           </div>
         </div>
       </header>
@@ -291,6 +337,22 @@ export default function Home() {
                 what should the personas try to do?
               </p>
               <Input value={goal} onChange={(e) => setGoal(e.target.value)} placeholder={DEMO_GOAL} />
+
+              <p className="mb-3 mt-5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+                <span>local repo path (optional)</span>
+                <span className="text-white/30 normal-case tracking-normal">
+                  enables one-click fixes via claude code
+                </span>
+              </p>
+              <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/30 px-3">
+                <FolderCode className="size-4 text-white/40" />
+                <Input
+                  className="border-0 bg-transparent px-0 focus:border-0"
+                  placeholder="/Users/you/dev/your-project"
+                  value={repoPath}
+                  onChange={(e) => setRepoPath(e.target.value)}
+                />
+              </div>
 
               <div className="mt-5 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <button
@@ -386,10 +448,44 @@ export default function Home() {
 
           {report && (
             <div className="mt-10">
-              <ReportView report={report} />
+              <ReportView
+                report={report}
+                selectedRanks={repoPath.trim() ? selectedRanks : undefined}
+                onToggleRank={repoPath.trim() ? toggleRank : undefined}
+              />
+            </div>
+          )}
+
+          {/* Sticky apply bar — appears when fixes are selected */}
+          {report && repoPath.trim() && selectedFixes.length > 0 && (
+            <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/10 bg-black/95 px-6 py-4">
+              <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
+                <div className="text-sm text-white/70">
+                  <span className="font-semibold text-white">
+                    {selectedFixes.length} fix{selectedFixes.length === 1 ? "" : "es"}
+                  </span>{" "}
+                  selected · target:{" "}
+                  <span className="font-mono text-white/80">{repoPath}</span>
+                </div>
+                <Button onClick={() => setApplyOpen(true)}>
+                  <Wrench className="size-4" />
+                  Apply with Claude Code
+                </Button>
+              </div>
             </div>
           )}
         </section>
+      )}
+
+      {/* Claude Code apply modal */}
+      {report && (
+        <ApplyModal
+          open={applyOpen}
+          repoPath={repoPath.trim()}
+          targetUrl={url}
+          fixes={selectedFixes}
+          onClose={() => setApplyOpen(false)}
+        />
       )}
 
       <footer className="mt-auto border-t border-white/5">
