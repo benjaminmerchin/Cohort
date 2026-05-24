@@ -1,32 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Bot, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/lib/auth";
 
 export function SignIn() {
-  const { signIn } = useAuth();
+  const { user, ready, signIn } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
+
+  // If already signed in, bounce straight to the app.
+  useEffect(() => {
+    if (ready && user) router.replace("/app");
+  }, [ready, user, router]);
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
     signIn(email, name);
+    router.push("/app");
   };
 
   return (
     <div className="relative flex min-h-screen flex-col bg-black text-white">
       <header className="border-b border-white/5">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
+          <a href="/" className="flex items-center gap-2">
             <div className="grid size-7 place-items-center rounded-lg border border-white/15 bg-white/[0.04]">
               <Bot className="size-3.5 text-white" />
             </div>
             <span className="text-sm font-semibold tracking-[0.18em]">COHORT</span>
-          </div>
+          </a>
+          <a
+            href="/"
+            className="text-xs text-white/50 hover:text-white"
+          >
+            ← Back to landing
+          </a>
         </div>
       </header>
 
